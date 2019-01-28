@@ -1,50 +1,38 @@
 # coding: UTF-8
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 #グラフを描く
 
-filename = "data_macro.csv"
-raw_data = open(filename, 'r')
-data = np.loadtxt(raw_data, delimiter=",")
+df1 = pd.read_csv('data_macro.csv')[['Induced Current (μA)','0.01*|S-E|/f*30 (m/s)']]
+df2 = pd.read_csv('data_micro.csv')[['Induced Current (μA)','0.005 / f*30 (m/s)']]
+'''
+x = df1['Induced Current (μA)']
+y = df1['0.01*|S-E|/f*30 (m/s)']
+plt.plot(x,y,'go', label = 'Full Distance of the Magnet (F)')
 
-def errorBar(a, b):
-  return a*b
+func = np.poly1d(np.polyfit(x, y,1))(x)
+plt.plot(x, func, label='Best Fit Curve for F')
+'''
 
-x = []
-y = []
+x = df2['Induced Current (μA)']
+y = df2['0.005 / f*30 (m/s)']
+plt.plot(x,y, 'bo', label = 'Only Around the Coil (O)')
+'''
+func = np.poly1d(np.polyfit(x, y,1))(x)
+plt.plot(x, func, label='Best Fit Curve for O')
+'''
+f = np.linspace(10000, 0.375)
+b = 0.15/f+0.04
+a = abs(-1.502/f)
+plt.plot(a,b, label = 'Theoretical Value')
 
-for i in data:
- if i[4] < 1.0:
-  x.append(i[4])
- else:
-  x.append(0)
+plt.xlabel("Induced Current (μA)")
+plt.ylabel("Velocity of Bar Magnet (m/s)")
 
-for i in data:
-  y.append(i[3])
+plt.axis([0,4,0,0.35])
 
-func = np.poly1d(np.polyfit(x,y,1))(x)
-
-plt.plot(x,y,'go',label = "points")
-plt.plot(x, func, label='Least Squares Method')
-
-err = []
-for i in y:
-    ev = errorBar(i, 0.025)
-    err.append(ev)
-
-r = np.corrcoef(x,y)
-plt.errorbar(x,y,yerr=err,fmt='go',ecolor='g')
+plt.title("figure 2.6")
 
 plt.legend()
-plt.title("figure 2.5")
-plt.xlabel("Induced Current (μA)")
-plt.ylabel("Velocity of Bar Magnet (cm/s)")
-plt.axis([0,4,5,30])
 plt.show()
-
-#calculated theoretical value
-'''x = np.linspace(0.1, 30)
-y = -1.502*10**-6/x
-
-plt.plot(x,y)
-plt.show()'''
